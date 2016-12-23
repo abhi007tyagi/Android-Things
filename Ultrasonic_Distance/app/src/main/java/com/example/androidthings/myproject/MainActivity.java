@@ -18,6 +18,7 @@ package com.example.androidthings.myproject;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.util.Log;
 
 import com.google.android.things.pio.Gpio;
@@ -38,7 +39,6 @@ public class MainActivity extends Activity {
     private Gpio mEchoGpio;
 
     private long mEchoTime = 0l;
-//    private boolean mEchoTimeStarted = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,7 +63,7 @@ public class MainActivity extends Activity {
             // set Active High to consider High voltage as Active
             mEchoGpio.setActiveType(Gpio.ACTIVE_HIGH);
             // Enable edge trigger events for both falling and rising edges. This will make it a toggle button.
-            mEchoGpio.setEdgeTriggerType(Gpio.EDGE_BOTH);
+            mEchoGpio.setEdgeTriggerType(Gpio.EDGE_FALLING);
             // Register an event callback.
             mEchoGpio.registerGpioCallback(mEchoCallback);
 
@@ -94,38 +94,32 @@ public class MainActivity extends Activity {
     private GpioCallback mEchoCallback = new GpioCallback() {
         @Override
         public boolean onGpioEdge(Gpio gpio) {
-            Log.i(TAG, "GPIO ECHO callback ------------");
-
-
+            mEchoTime = SystemClock.elapsedRealtimeNanos() - mEchoTime;
             if (mEchoGpio == null) {
                 return true;
             }
 
             try {
-//                Log.i(TAG, "GPIO callback -->" + gpio.getValue());
-//                if (gpio.getValue()) {
-//                    // set echo time start when echo output goes from 0 to 1 i.e. rising edge detected
-//                    mEchoTime = System.currentTimeMillis();
-//                    Log.d(TAG, "echo time start ---> " + mEchoTime);
-//                } else if (!gpio.getValue()) {
-                    // calculate echo time from start to end as soon as output goes from 1 to 0 i.e. falling edge detected
-                    mEchoTime = System.currentTimeMillis() - mEchoTime;
-                    Log.d(TAG, "echo time duration ---> " + mEchoTime);
+                Log.d(TAG, "echo time duration ---> " + mEchoTime);
 
-                    // now calculate distance
-                    long distance = mEchoTime * 170; // for distance in cm
-                    Log.d(TAG, "Distance = " + distance);
+                /**
+                 * Distance = Speed * Time
+                 * 2D = 340m/s * x/1000000000s
+                 * D = 170 * x/1000000000  m
+                 * D = 170*100 * x/1000000000  cm
+                 * D = 17 * x/1000000  cm
+                 */
+                // now calculate distance
+                double distance = (mEchoTime * 17) / 1000000; // for distance in cm
+                Log.d(TAG, "Distance = " + distance);
 
-                    // reset variable for next calculation
-                    mEchoTime = 0l;
-                    Log.d(TAG, "wait 3 second");
-                    // wait for 3 second
-                    TimeUnit.SECONDS.sleep(3);
+                // reset variable for next calculation
+                mEchoTime = 0l;
+                Log.d(TAG, "wait 3 second");
+                // wait for 3 second
+                TimeUnit.SECONDS.sleep(3);
 
-                    trigger();
-//                }
-//            } catch (IOException e) {
-//                Log.e(TAG, "Error on PeripheralIO API", e);
+                trigger();
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -148,7 +142,7 @@ public class MainActivity extends Activity {
             TimeUnit.MICROSECONDS.sleep(10);
             mTrigGpio.setValue(false);
 
-            mEchoTime = System.currentTimeMillis();
+            mEchoTime = SystemClock.elapsedRealtimeNanos();
             Log.d(TAG, "echo time start ---> " + mEchoTime);
         } catch (InterruptedException e) {
             e.printStackTrace();
