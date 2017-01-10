@@ -20,7 +20,6 @@ public class MainActivity extends Activity implements MqttCallback {
     private static final String TAG = MainActivity.class.getSimpleName();
 
     public static final String LED_PIN = "BCM22"; //physical pin #15
-
     private Gpio ledPin;
 
     @Override
@@ -42,18 +41,13 @@ public class MainActivity extends Activity implements MqttCallback {
 
         PeripheralManagerService service = new PeripheralManagerService();
         try {
-
-
             // Create GPIO connection for LED.
             ledPin = service.openGpio(LED_PIN);
             // Configure as an output.
             ledPin.setDirection(Gpio.DIRECTION_OUT_INITIALLY_LOW);
-
         } catch (IOException e) {
             Log.e(TAG, "Error on PeripheralIO API", e);
         }
-
-
     }
 
     @Override
