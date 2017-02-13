@@ -53,6 +53,7 @@ public class MainActivity extends Activity {
             mBtnGpio.setEdgeTriggerType(Gpio.EDGE_BOTH);
             // Register an event callback.
             mBtnGpio.registerGpioCallback(mMotorCallback);
+
         } catch (IOException e) {
             Log.e(TAG, "Error on PeripheralIO API", e);
         }
