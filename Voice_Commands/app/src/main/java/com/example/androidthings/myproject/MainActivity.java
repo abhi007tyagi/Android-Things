@@ -79,16 +79,19 @@ public class MainActivity extends Activity {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
+        Log.d(TAG, "onActivityResult: ");
         switch (requestCode) {
             case SPEECH_INPUT: {
                 if (resultCode == Activity.RESULT_OK && data != null) {
                     ArrayList<String> result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
                     Log.d(TAG, "onActivityResult: " + result.get(0));
+                }else{ //TODO add check for CANCELLED RESULT
+                    Log.d(TAG, "onActivityResult: Result Code:"+resultCode+ " || Data: "+ data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS));
                 }
                 break;
             }
             default: {
+                Log.d(TAG, "onActivityResult: Default!!"+ resultCode);
                 listen();
             }
             break;
