@@ -19,11 +19,8 @@ package com.example.androidthings.myproject;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.speech.RecognizerIntent;
-import android.speech.tts.TextToSpeech;
 import android.util.Log;
 
 import com.google.android.things.pio.Gpio;
@@ -34,25 +31,17 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Locale;
 
-public class MainActivity extends Activity implements TextToSpeech.OnInitListener {
+public class MainActivity extends Activity {
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final int SPEECH_INPUT = 27;
     public static final String BTN_PIN = "BCM17"; //physical pin #11
 
     private Gpio mBtnGpio;
-    private TextToSpeech tts;
-
-    private int mInterval = 5000; // 5 seconds by default, can be changed later
-    private Handler mHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.d(TAG, "onCreate");
-
-        tts = new TextToSpeech(this, this);
-        mHandler = new Handler();
-        startRepeatingTask();
 
         PeripheralManagerService service = new PeripheralManagerService();
         try {
@@ -68,6 +57,8 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         } catch (IOException e) {
             Log.e(TAG, "Error on PeripheralIO API", e);
         }
+
+        listen();
     }
 
     @Override
@@ -83,11 +74,6 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                 Log.e(TAG, "Error on PeripheralIO API", e);
             }
         }
-        if (tts != null) {
-            tts.stop();
-            tts.shutdown();
-        }
-        stopRepeatingTask();
     }
 
     @Override
@@ -102,6 +88,10 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
                 }
                 break;
             }
+            default: {
+                listen();
+            }
+            break;
         }
     }
 
@@ -119,6 +109,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     };
 
     private void listen() {
+        Log.d(TAG, "listen: Listening!!");
         Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
@@ -129,52 +120,4 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
             Log.d(TAG, "Sorry! Device does not support speech input");
         }
     }
-
-    @Override
-    public void onInit(int status) {
-        if (status == TextToSpeech.SUCCESS) {
-            int result = tts.setLanguage(Locale.US);
-            if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
-                Log.e("TTS", "This Language is not supported");
-            }
-
-        } else {
-            Log.e("TTS", "Initilization Failed!");
-        }
-    }
-
-    private void speak(String text) {
-        Log.d(TAG, "speaking... " + text);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, null);
-        } else {
-            tts.speak(text, TextToSpeech.QUEUE_FLUSH, null);
-        }
-    }
-
-    public void stopSpeaking() {
-        tts.stop();
-    }
-
-    Runnable mStatusChecker = new Runnable() {
-        @Override
-        public void run() {
-            try {
-                speak("Hello Android Things !!"); //this function can change value of mInterval.
-            } finally {
-                // 100% guarantee that this always happens, even if
-                // your update method throws an exception
-                mHandler.postDelayed(mStatusChecker, mInterval);
-            }
-        }
-    };
-
-    void startRepeatingTask() {
-        mStatusChecker.run();
-    }
-
-    void stopRepeatingTask() {
-        mHandler.removeCallbacks(mStatusChecker);
-    }
-
 }
