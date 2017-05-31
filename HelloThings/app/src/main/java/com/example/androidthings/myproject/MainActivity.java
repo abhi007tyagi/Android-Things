@@ -48,7 +48,7 @@ import java.io.IOException;
 public class MainActivity extends Activity {
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final int INTERVAL_BETWEEN_BLINKS_MS = 1000;
-    private static final String GPIO_PIN_NAME = "BCM25";
+    private static final String GPIO_PIN_NAME = "BCM13"; // Physical Pin #33 on Raspberry Pi3
 
     private Handler mHandler = new Handler();
 
