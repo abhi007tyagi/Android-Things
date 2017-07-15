@@ -76,7 +76,6 @@ public class MainActivity extends Activity {
         public boolean onGpioEdge(Gpio gpio) {
             Log.i(TAG, "GPIO callback ------------");
 
-
             if (mLedGpio == null) {
                 return true;
             }
