@@ -1,19 +1,3 @@
-/*
- * Copyright 2016, The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.example.androidthings.myproject;
 
 import android.app.Activity;
@@ -30,7 +14,7 @@ public class MainActivity extends Activity {
     private static final String TAG = MainActivity.class.getSimpleName();
 
     public static final String PIR_PIN = "BCM17"; //physical pin #11
-    public static final String LED_PIN = "BCM18"; //physical pin #12
+    public static final String LED_PIN = "BCM13"; //physical pin #33
 
     private Gpio mPirGpio;
     private Gpio mLedGpio;
@@ -91,12 +75,9 @@ public class MainActivity extends Activity {
         @Override
         public boolean onGpioEdge(Gpio gpio) {
             Log.i(TAG, "GPIO callback ------------");
-
-
             if (mLedGpio == null) {
                 return true;
             }
-
             try {
                 Log.i(TAG, "GPIO callback -->" + gpio.getValue());
                 // set the LED state to opposite of input state

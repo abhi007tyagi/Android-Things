@@ -19,7 +19,7 @@ import java.io.IOException;
 public class MainActivity extends Activity implements MqttCallback {
     private static final String TAG = MainActivity.class.getSimpleName();
 
-    public static final String LED_PIN = "BCM22"; //physical pin #15
+    public static final String LED_PIN = "BCM13"; //physical pin #33
     private Gpio ledPin;
 
     @Override
@@ -28,7 +28,7 @@ public class MainActivity extends Activity implements MqttCallback {
         Log.d(TAG, "onCreate..... MQTT LED");
 
         try {
-            MqttClient client = new MqttClient("tcp://192.168.1.7:1883", "AndroidThingSub", new MemoryPersistence());
+            MqttClient client = new MqttClient("tcp://192.168.1.100:1883", "AndroidThingSub", new MemoryPersistence());
             client.setCallback(this);
             client.connect();
 

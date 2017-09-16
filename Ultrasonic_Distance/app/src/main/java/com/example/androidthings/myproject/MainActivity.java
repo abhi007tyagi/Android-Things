@@ -18,6 +18,7 @@ package com.example.androidthings.myproject;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.SystemClock;
 import android.util.Log;
 
@@ -34,6 +35,9 @@ public class MainActivity extends Activity {
 
     public static final String TRIG_PIN = "BCM17"; //physical pin #11
     public static final String ECHO_PIN = "BCM18"; //physical pin #12
+    private static final long INTERVAL_BETWEEN_FOR_TRIGGER = 4500;
+
+    private Handler mHandler = new Handler();
 
     private Gpio mTrigGpio;
     private Gpio mEchoGpio;
@@ -67,7 +71,8 @@ public class MainActivity extends Activity {
             // Register an event callback.
             mEchoGpio.registerGpioCallback(mEchoCallback);
 
-            trigger();
+            mHandler.post(mTriggerRunnable);
+//            trigger();
 
         } catch (IOException e) {
             Log.e(TAG, "Error on PeripheralIO API", e);
@@ -88,6 +93,8 @@ public class MainActivity extends Activity {
                 Log.e(TAG, "Error on PeripheralIO API", e);
             }
         }
+
+        mHandler.removeCallbacks(mTriggerRunnable);
     }
 
     // Register an event callback.
@@ -99,30 +106,26 @@ public class MainActivity extends Activity {
                 return true;
             }
 
-            try {
-                Log.d(TAG, "echo time duration ---> " + mEchoTime);
+            Log.d(TAG, "echo time duration ---> " + mEchoTime);
 
-                /**
-                 * Distance = Speed * Time
-                 * 2D = 340m/s * x/1000000000s
-                 * D = 170 * x/1000000000  m
-                 * D = 170*100 * x/1000000000  cm
-                 * D = 17 * x/1000000  cm
-                 */
-                // now calculate distance
-                double distance = (mEchoTime * 17) / 1000000; // for distance in cm
-                Log.d(TAG, "Distance = " + distance);
+            /**
+             * Distance = Speed * Time
+             * 2D = 340m/s * x/1000000000s
+             * D = 170 * x/1000000000  m
+             * D = 170*100 * x/1000000000  cm
+             * D = 17 * x/1000000  cm
+             */
+            // now calculate distance
+            double distance = (mEchoTime * 17) / 1000000; // for distance in cm
+            Log.d(TAG, "Distance = " + distance);
 
-                // reset variable for next calculation
-                mEchoTime = 0l;
-                Log.d(TAG, "wait 3 second");
-                // wait for 3 second
-                TimeUnit.SECONDS.sleep(3);
-
-                trigger();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+            // reset variable for next calculation
+            mEchoTime = 0l;
+//                Log.d(TAG, "wait 3 second");
+//                // wait for 3 second
+//                TimeUnit.SECONDS.sleep(3);
+//
+//                trigger();
             // Return true to keep callback active.
             return true;
         }
@@ -134,12 +137,12 @@ public class MainActivity extends Activity {
         try {
             Log.d(TAG, "initiating Tigger");
             // allow module to settle
-            TimeUnit.MILLISECONDS.sleep(500);
+//            TimeUnit.MILLISECONDS.sleep(500);
 
             Log.d(TAG, "initiating 10us pulse tigger");
             // send 10us pulse trigger
             mTrigGpio.setValue(true);
-            TimeUnit.MICROSECONDS.sleep(10);
+            TimeUnit.MICROSECONDS.sleep(11);
             mTrigGpio.setValue(false);
 
             mEchoTime = SystemClock.elapsedRealtimeNanos();
@@ -150,4 +153,13 @@ public class MainActivity extends Activity {
             e.printStackTrace();
         }
     }
+
+
+    private Runnable mTriggerRunnable = new Runnable() {
+        @Override
+        public void run() {
+            trigger();
+            mHandler.postDelayed(mTriggerRunnable, INTERVAL_BETWEEN_FOR_TRIGGER);
+        }
+    };
 }

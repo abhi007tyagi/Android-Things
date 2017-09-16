@@ -14,7 +14,7 @@ public class MainActivity extends Activity {
     private static final String TAG = MainActivity.class.getSimpleName();
 
     public static final String LDR_PIN = "BCM17"; //physical pin #11
-    public static final String LED_PIN = "BCM18"; //physical pin #12
+    public static final String LED_PIN = "BCM13"; //physical pin #33
 
     private Gpio mLdrGpio;
     private Gpio mLedGpio;
