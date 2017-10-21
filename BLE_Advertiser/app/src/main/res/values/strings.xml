@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Android Things - BLE Advertiser</string>
+    <string name="uuid">9255B2FC-920D-44B9-9E2F-63C81B77DB75</string>
+</resources>
